@@ -9,7 +9,7 @@ import os
 import argparse
 from Model import Model_mlp_diff, Model_Cond_Diffusion, ObservationEmbedder, SpeakingTurnDescriptorEmbedder, ChunkDescriptorEmbedder
 from Deps import Miror, Client, Sender, ExternalTensorClient, RealTimeProcessor
-from Processings import interpolate_activations_btwchunks, process_and_save_to_csv
+from Processings import interpolate_activations_btwchunks, process_and_save_to_csv, adaptive_interpolation_btwchunks, crossfade_activations_btwchunks, exclusive_group_activation, discrete_symmetric_groups
 from Randomizers import generate_random_tensors_numpy, generate_random_series_sequence
 
 def resource_path(relative_path):
@@ -108,7 +108,7 @@ def real_time_inference_loop(model, device, client, sender, processor, miror, te
     # Initialize lists to hold all input vectors and reprojected outputs
     input_vector_list = []
     reprojected_output_list = []
-    file = "C:\\Users\\isir\\Desktop\\RealTimeExperiment_Nezih\input_output_sequences_random.txt"
+    file = "input_output_sequences_random.txt"
 
 
     while True:
@@ -150,23 +150,23 @@ def real_time_inference_loop(model, device, client, sender, processor, miror, te
 
 
 
-            with torch.no_grad():
-                model.guide_w = guide_weight
-                start_time2 = time.time()
-                print(chunk_descriptor_tensor)
-                y_pred = model.sample(input_tensor, z_tensor, chunk_descriptor_tensor).detach().cpu().numpy()
-                end_time2 = time.time()
-                inference_time = end_time2 - start_time2
-                print(f"Inference time for the current batch: {inference_time: .4f} seconds")
-
-
-            best_prediction = np.round(y_pred)
-            best_prediction[best_prediction == 4] = 3
-            best_prediction[best_prediction >= 5] = 0
-            best_prediction[best_prediction < 0] = 0
-
-
-            reprojected_output = processor.reproject_to_buffer(best_prediction[0], processor.buffer_size)
+            # with torch.no_grad():
+            #     model.guide_w = guide_weight
+            #     start_time2 = time.time()
+            #     print(chunk_descriptor_tensor)
+            #     y_pred = model.sample(input_tensor, z_tensor, chunk_descriptor_tensor).detach().cpu().numpy()
+            #     end_time2 = time.time()
+            #     inference_time = end_time2 - start_time2
+            #     print(f"Inference time for the current batch: {inference_time: .4f} seconds")
+            #
+            #
+            # best_prediction = np.round(y_pred)
+            # best_prediction[best_prediction == 4] = 3
+            # best_prediction[best_prediction >= 5] = 0
+            # best_prediction[best_prediction < 0] = 0
+            #
+            #
+            # reprojected_output = processor.reproject_to_buffer(best_prediction[0], processor.buffer_size)
 
 
             #TO SWITCH TO RANDOM GENERATION !!
@@ -185,7 +185,7 @@ def real_time_inference_loop(model, device, client, sender, processor, miror, te
             # Read the last 16 rows from the adjusted CSV file and queue them for the sender
             df = pd.read_csv(extended_csv_path)
             columns_to_interpolat = ['AU06_r', 'AU25_r', 'AU12_r', 'AU10_r', 'AU09_r', 'AU14_r', 'AU15_r', 'AU01_r',
-                                      'AU04_r', 'AU24_r', 'AU02_r']
+                                      'AU04_r', 'AU20_r', 'AU02_r']
             # Ensure enough data is available
             if df.shape[0] > (processor.buffer_size * 2) - 1:
                 a = processor.buffer_size
@@ -195,15 +195,31 @@ def real_time_inference_loop(model, device, client, sender, processor, miror, te
                 df_curr = df.iloc[-a:].reset_index(drop=True)
 
                 # Apply the interpolation between chunks
-                df_prev, df_curr = interpolate_activations_btwchunks(
-                    df_prev, df_curr, columns_to_interpolat, N, K
-                )
+                #df_prev, df_curr = interpolate_activations_btwchunks(
+                    #df_prev, df_curr, columns_to_interpolat, N, K
+                #)
+                df_prev, df_curr = crossfade_activations_btwchunks(df_prev, df_curr, columns_to_interpolat, overlap=N)
+
+                #df_prev, df_curr = adaptive_interpolation_btwchunks(
+                    #df_prev, df_curr, columns_to_interpolat, min_overlap=5, max_overlap=15, diff_threshold=0.2, k=10
+                #)
 
                 # Update the main DataFrame with modified chunks
                 df.update(df_prev)
                 df.update(df_curr)
 
-            last_16_rows = df.tail(processor.buffer_size).to_csv(index=False, header=False)
+            # Define the groups with their representative AU and corresponding columns.
+            groups = {
+                'smile': {'rep': 'AU12_r', 'cols': ['AU12_r', 'AU25_r', 'AU06_r', 'AU02_r']},  # Adjust names as needed
+                'frown': {'rep': 'AU10_r', 'cols': ['AU20_r', 'AU09_r', 'AU04_r']},
+                'other': {'rep': 'AU15_r', 'cols': ['AU15_r', 'AU10_r','AU01_r']}
+            }
+
+            # Apply the adaptive accelerated fade with priority logic.
+            df_exclusive = exclusive_group_activation(df, groups, threshold=0.05)
+            df_t= discrete_symmetric_groups(df_exclusive, groups, threshold=0.05)
+            df_t.to_csv('FinalCrossinterpolated.csv', index=False)
+            last_16_rows = df_t.tail(processor.buffer_size).to_csv(index=False, header=False)
             sender.queue_data(last_16_rows.splitlines())
 
             previous_input_tensor = input_tensor
@@ -318,7 +334,7 @@ def main():
 
     mirror = Miror(consecutive_zero_threshold=M)
 
-    client = Client(50150, "localhost", buffer)
+    client = Client(5560, "localhost", buffer)
     client.connect_to_server()
     client.start_receiving()
 
@@ -326,7 +342,7 @@ def main():
     tensor_client = ExternalTensorClient(conversion_table, server1_address="localhost", server1_port= 50200, server2_address="localhost", server2_port=50201)
     tensor_client.connect()
 
-    sender = Sender(50151, "localhost")
+    sender = Sender(5561, "localhost")
 
     real_time_inference_loop(model, device, client, sender,  processor, mirror, tensor_client, N , K, guide_weight=guide_w)
 

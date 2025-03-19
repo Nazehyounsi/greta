@@ -309,6 +309,7 @@ public class OpenFaceOutputStreamReader extends javax.swing.JFrame implements AU
         zeroMQConnectButton = new javax.swing.JButton();
         MODIFF = new javax.swing.JPanel();
         northPanelFiller2 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
+        jCheckBox1 = new javax.swing.JCheckBox();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0));
         jLayeredPane1 = new javax.swing.JLayeredPane();
@@ -493,6 +494,14 @@ public class OpenFaceOutputStreamReader extends javax.swing.JFrame implements AU
         MODIFF.setBorder(javax.swing.BorderFactory.createTitledBorder("MODIFF"));
         MODIFF.setToolTipText("MODIFF");
         MODIFF.add(northPanelFiller2);
+
+        jCheckBox1.setText("Launch");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+        MODIFF.add(jCheckBox1);
         MODIFF.add(filler1);
         MODIFF.add(filler2);
         MODIFF.add(jLayeredPane1);
@@ -895,7 +904,6 @@ public class OpenFaceOutputStreamReader extends javax.swing.JFrame implements AU
             // startServer("50150","localhost");
 
             String host = "localhost";
-            // String port = "50150";
             String port = "5560";
 
             startServer(host,port);
@@ -912,6 +920,25 @@ public class OpenFaceOutputStreamReader extends javax.swing.JFrame implements AU
                 }
             }
          }    }//GEN-LAST:event_connectMODIFFActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+    if (jCheckBox1.isSelected()) {
+        
+        try {
+      
+        String basePath = System.getProperty("user.dir"); // gets the current working directory
+        System.out.println(basePath);
+        String batRelativePath = "Common\\Data\\MODIFF\\bat_run_modiff - Random.bat";
+        String fullBatPath = basePath + "\\" + batRelativePath;
+        System.out.println(fullBatPath);
+        String command = "cmd /c start \"\" \"" + fullBatPath + "\"";
+        Process p = Runtime.getRuntime().exec(command);
+    } catch (IOException ex) {
+        ex.printStackTrace();
+    }  
+    }
+    else{}
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     /* ---------------------------------------------------------------------- */
 
@@ -941,6 +968,7 @@ public class OpenFaceOutputStreamReader extends javax.swing.JFrame implements AU
     private javax.swing.Box.Filler filler2;
     private javax.swing.JCheckBox filterCheckBox;
     private javax.swing.JTabbedPane inputTabbedPane;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBoxSendOSC;
     private javax.swing.JFrame jFrame1;

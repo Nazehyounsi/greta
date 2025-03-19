@@ -9,7 +9,7 @@ import os
 import argparse
 from Model import Model_mlp_diff, Model_Cond_Diffusion, ObservationEmbedder, SpeakingTurnDescriptorEmbedder, ChunkDescriptorEmbedder
 from Deps import Miror, Client, Sender, ExternalTensorClient, RealTimeProcessor
-from Processings import interpolate_activations_btwchunks, process_and_save_to_csv
+from Processings import interpolate_activations_btwchunks, process_and_save_to_csv, adaptive_interpolation_btwchunks, exclusive_group_activation, discrete_symmetric_groups
 from Randomizers import generate_random_tensors_numpy, generate_random_series_sequence
 
 def resource_path(relative_path):
@@ -184,9 +184,6 @@ def real_time_inference_loop(model, device, client, sender, processor, miror, te
             reprojected_output = processor.reproject_to_buffer(best_prediction[0], processor.buffer_size)
 
 
-            #TO SWITCH TO RANDOM GENERATION !!
-            #reprojected_output = generate_random_series_sequence(processor.buffer_size, 4)
-
             # Store the reprojected output sequence in the Storer
             miror.store_sequence(reprojected_output)
 
@@ -200,7 +197,7 @@ def real_time_inference_loop(model, device, client, sender, processor, miror, te
             # Read the last 16 rows from the adjusted CSV file and queue them for the sender
             df = pd.read_csv(extended_csv_path)
             columns_to_interpolat = ['AU06_r', 'AU25_r', 'AU12_r', 'AU10_r', 'AU09_r', 'AU14_r', 'AU15_r', 'AU01_r',
-                                      'AU04_r', 'AU24_r', 'AU02_r']
+                                      'AU04_r', 'AU20_r', 'AU02_r']
             # Ensure enough data is available
             if df.shape[0] > (processor.buffer_size * 2) - 1:
                 a = processor.buffer_size
@@ -210,13 +207,30 @@ def real_time_inference_loop(model, device, client, sender, processor, miror, te
                 df_curr = df.iloc[-a:].reset_index(drop=True)
 
                 # Apply the interpolation between chunks
-                df_prev, df_curr = interpolate_activations_btwchunks(
-                    df_prev, df_curr, columns_to_interpolat, N, K
-                )
+                df_prev, df_curr = adaptive_interpolation_btwchunks(
+        df_prev, df_curr, columns_to_interpolat, min_overlap=5, max_overlap=15, diff_threshold=0.2, k=10
+    )
+                # df_prev, df_curr = interpolate_activations_btwchunks(
+                # df_prev, df_curr, columns_to_interpolat, N, K
+                # )
 
                 # Update the main DataFrame with modified chunks
                 df.update(df_prev)
                 df.update(df_curr)
+                # Define the groups with their representative AU and corresponding columns.
+                groups = {
+                    'smile': {'rep': 'AU12_r', 'cols': ['AU12_r', 'AU25_r', 'AU06_r', 'AU02_r']},
+                    # Adjust names as needed
+                    'frown': {'rep': 'AU10_r', 'cols': ['AU20_r', 'AU09_r', 'AU04_r']},
+                    'other': {'rep': 'AU15_r', 'cols': ['AU15_r', 'AU10_r', 'AU01_r']}
+                }
+
+                # Apply the adaptive accelerated fade with priority logic.
+                df_exclusive = exclusive_group_activation(df, groups, threshold=0.05)
+                df_t = discrete_symmetric_groups(df_exclusive, groups, threshold=0.05)
+                df_t.to_csv('FinalCrossinterpolated.csv', index=False)
+                last_16_rows = df_t.tail(processor.buffer_size).to_csv(index=False, header=False)
+                sender.queue_data(last_16_rows.splitlines())
 
             last_16_rows = df.tail(processor.buffer_size).to_csv(index=False, header=False)
             sender.queue_data(last_16_rows.splitlines())

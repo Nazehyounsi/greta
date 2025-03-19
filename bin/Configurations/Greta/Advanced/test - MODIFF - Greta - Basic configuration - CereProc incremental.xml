@@ -17,7 +17,7 @@
         <element h="50.0" id="Log Frame - 1544700702468-724"
             module="Log Frame" name="Log Frame" w="80.0" x="290.0" y="30.0">
             <parameter name="blackBackground" value="true"/>
-            <window h="435" visible="true" w="618" x="1077" y="231"/>
+            <window h="435" visible="false" w="618" x="1077" y="231"/>
         </element>
         <element h="530.0" id="Environment - 1544700713383-564"
             module="Environment" name="Environment" w="720.0" x="30.0" y="110.0">
@@ -41,7 +41,7 @@
                     module="BML File Reader" name="BML File Reader"
                     w="80.0" x="130.0" y="30.0">
                     <parameter name="fileName" value=""/>
-                    <window h="143" visible="true" w="792" x="158" y="-1137"/>
+                    <window h="143" visible="false" w="792" x="158" y="-1137"/>
                 </element>
                 <element h="230.0"
                     id="Behavior Planner - 1544700734561-356"
@@ -94,7 +94,7 @@
                     id="NVBG_MM_Controller - 1619462027713-169"
                     module="NVBG_MM_Controller"
                     name="NVBG_MM_Controller" w="80.0" x="240.0" y="30.0">
-                    <window h="140" visible="true" w="324" x="164" y="-988"/>
+                    <window h="140" visible="false" w="324" x="164" y="-988"/>
                 </element>
                 <element h="50.0"
                     id="Rest_Pose_Setter - 1621595871295-438"
@@ -111,7 +111,7 @@
                     <parameter name="csvFileName" value=""/>
                     <parameter name="zeroMQPort" value=""/>
                     <parameter name="tabIndex" value="1"/>
-                    <window h="671" visible="true" w="641" x="985" y="156"/>
+                    <window h="671" visible="true" w="1120" x="506" y="156"/>
                 </element>
                 <element h="50.0" id="Face Blender - 1738581490619-246"
                     module="Face Blender" name="Face Blender" w="80.0"
@@ -126,11 +126,11 @@
                     id="MICounselorIncrementalDA - 1738595619849-326"
                     module="MICounselorIncrementalDA"
                     name="MICounselorIncrementalDA" w="80.0" x="30.0" y="350.0">
-                    <window h="611" visible="true" w="941" x="2534" y="-572"/>
+                    <window h="1038" visible="true" w="1938" x="-9" y="-9"/>
                 </element>
                 <element h="50.0" id="DeepGram - 1738595653006-290"
                     module="DeepGram" name="DeepGram" w="80.0" x="30.0" y="410.0">
-                    <window h="393" visible="true" w="694" x="2467" y="52"/>
+                    <window h="1038" visible="true" w="1938" x="-9" y="-9"/>
                 </element>
                 <element h="50.0" id="Feedbacks - 1738595669132-291"
                     module="Feedbacks" name="Feedbacks" w="80.0"
@@ -139,7 +139,7 @@
                 </element>
                 <element h="50.0" id="MODIFF - 1738612601826-559"
                     module="MODIFF" name="MODIFF" w="80.0" x="240.0" y="350.0">
-                    <window h="427" visible="true" w="946" x="2630" y="-39"/>
+                    <window h="1038" visible="true" w="1938" x="-9" y="-9"/>
                 </element>
                 <element h="230.0"
                     id="Incremental Realizer V2 - 1738612939044-733"
@@ -155,38 +155,14 @@
             <parameter name="roll" value="0.0"/>
             <parameter name="pitch" value="-0.052931178361177444"/>
             <parameter name="yaw" value="-0.029251696541905403"/>
-            <window h="1298" visible="true" w="1216" x="3592" y="-655"/>
+            <window h="1038" visible="true" w="1938" x="-9" y="-9"/>
         </element>
     </elements>
     <connections>
-        <connection connector="FAPFrameEmitterToFAPFramePerformer"
-            source="Simple AU Performer - 1544700795765-328" target="Face Blender - 1738581490619-246"/>
-        <connection connector="FaceSourceForFaceBlender"
-            source="Simple AU Performer - 1738581520516-808" target="Face Blender - 1738581490619-246"/>
-        <connection connector="BAPFrameEmitterToBAPFramePerformer"
-            source="Animation Keyframe Performer - 1544700747777-220" target="MPEG4 Animatable - 1544700808257-513"/>
-        <connection connector="connectPlayerToEnvironment"
-            source="Ogre Player - 1544700973529-249" target="Environment - 1544700713383-564"/>
         <connection connector="ASRToLLM"
             source="DeepGram - 1738595653006-290" target="MICounselorIncrementalDA - 1738595619849-326"/>
-        <connection connector="IntentionEmitterToIntentionPerformer"
-            source="MICounselorIncrementalDA - 1738595619849-326" target="Behavior Planner - 1544700734561-356"/>
-        <connection connector="SignalEmitterToSignalPerformer"
-            source="Behavior Planner - 1544700734561-356" target="Incremental Realizer V2 - 1738612939044-733"/>
         <connection connector="AudioEmitter To AudioPerformer"
             source="Audio Keyframe Performer - 1554477294171-845" target="MPEG4 Animatable - 1544700808257-513"/>
-        <connection connector="AUEmitterToAUPerformer"
-            source="MODIFF - 1738612601826-559" target="Simple AU Performer - 1738581520516-808"/>
-        <connection connector="AUEmitterToAUPerformer"
-            source="Face Keyframe Performer - 1554477289165-429" target="Simple AU Performer - 1544700795765-328"/>
-        <connection connector="FAPFrameEmitterToFAPFramePerformer"
-            source="Face Blender - 1738581490619-246" target="Lip Blender - 1554477283159-751"/>
-        <connection connector="addLogOutput"
-            source="Logs - 1544700696093-682" target="Log Frame - 1544700702468-724"/>
-        <connection connector="FAPFrameEmitterToFAPFramePerformer"
-            source="Lip Blender - 1554477283159-751" target="MPEG4 Animatable - 1544700808257-513"/>
-        <connection connector="addFeedbackInput"
-            source="Incremental Realizer V2 - 1738612939044-733" target="Feedbacks - 1738595669132-291"/>
         <connection connector="SignalEmitterToKeyFramePerformer"
             source="Incremental Realizer V2 - 1738612939044-733" target="Animation Keyframe Performer - 1544700747777-220"/>
         <connection connector="SignalEmitterToKeyFramePerformer"
@@ -195,12 +171,36 @@
             source="Incremental Realizer V2 - 1738612939044-733" target="Lip Model - 1544700770889-684"/>
         <connection connector="SignalEmitterToKeyFramePerformer"
             source="Incremental Realizer V2 - 1738612939044-733" target="Audio Keyframe Performer - 1554477294171-845"/>
+        <connection connector="addFeedbackInput"
+            source="Incremental Realizer V2 - 1738612939044-733" target="Feedbacks - 1738595669132-291"/>
+        <connection connector="connectPlayerToEnvironment"
+            source="Ogre Player - 1544700973529-249" target="Environment - 1544700713383-564"/>
+        <connection connector="FAPFrameEmitterToFAPFramePerformer"
+            source="Lip Blender - 1554477283159-751" target="MPEG4 Animatable - 1544700808257-513"/>
+        <connection connector="IntentionEmitterToIntentionPerformer"
+            source="MICounselorIncrementalDA - 1738595619849-326" target="Behavior Planner - 1544700734561-356"/>
+        <connection connector="AUEmitterToAUPerformer"
+            source="MODIFF - 1738612601826-559" target="Simple AU Performer - 1738581520516-808"/>
+        <connection connector="addLogOutput"
+            source="Logs - 1544700696093-682" target="Log Frame - 1544700702468-724"/>
+        <connection connector="BAPFrameEmitterToBAPFramePerformer"
+            source="Animation Keyframe Performer - 1544700747777-220" target="MPEG4 Animatable - 1544700808257-513"/>
+        <connection connector="addFeedbackOutput"
+            source="Feedbacks - 1738595669132-291" target="DeepGram - 1738595653006-290"/>
+        <connection connector="SignalEmitterToSignalPerformer"
+            source="Behavior Planner - 1544700734561-356" target="Incremental Realizer V2 - 1738612939044-733"/>
         <connection connector="setTTS" source="TTS - 1544700939858-569" target="CereProc - 1544700946314-81"/>
         <connection connector="connectAnimatableToEnvironment"
             source="MPEG4 Animatable - 1544700808257-513" target="Environment - 1544700713383-564"/>
+        <connection connector="AUEmitterToAUPerformer"
+            source="Face Keyframe Performer - 1554477289165-429" target="Simple AU Performer - 1544700795765-328"/>
         <connection connector="LipSourceForLipBlender"
             source="Lip Model - 1544700770889-684" target="Lip Blender - 1554477283159-751"/>
-        <connection connector="addFeedbackOutput"
-            source="Feedbacks - 1738595669132-291" target="DeepGram - 1738595653006-290"/>
+        <connection connector="FAPFrameEmitterToFAPFramePerformer"
+            source="Simple AU Performer - 1544700795765-328" target="Face Blender - 1738581490619-246"/>
+        <connection connector="FAPFrameEmitterToFAPFramePerformer"
+            source="Face Blender - 1738581490619-246" target="Lip Blender - 1554477283159-751"/>
+        <connection connector="FaceSourceForFaceBlender"
+            source="Simple AU Performer - 1738581520516-808" target="Face Blender - 1738581490619-246"/>
     </connections>
 </modulated>
