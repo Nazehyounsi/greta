@@ -928,7 +928,7 @@ public class OpenFaceOutputStreamReader extends javax.swing.JFrame implements AU
       
         String basePath = System.getProperty("user.dir"); // gets the current working directory
         System.out.println(basePath);
-        String batRelativePath = "Common\\Data\\MODIFF\\bat_run_modiff - Random.bat";
+        String batRelativePath = "Common\\Data\\MODIFF\\bat_run_modiff.bat";
         String fullBatPath = basePath + "\\" + batRelativePath;
         System.out.println(fullBatPath);
         String command = "cmd /c start \"\" \"" + fullBatPath + "\"";
