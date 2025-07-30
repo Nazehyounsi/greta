@@ -12,6 +12,10 @@ It is the result of different research projects conducted by Catherine Pelachaud
 - The "master-lgpl" of Greta is licensed under the GNU LGPL v3.
 - Depends on external software for Speech Synthesis ([MaryTTS](http://mary.dfki.de/) or CereProc), and 3D Rendering (Ogre or Unity).
 
+***Latest version** 
+   - T. Saga, L. Galland, N. Younsi, C. Pelachaud, "Greta 2.0: Social Interactive Agent system, optimized for neural network integration", 25th ACM International Conference on Intelligent Virtual Agents, 2025
+   - [Greta video demo](https://www.youtube.com/watch?v=uzi6gprzN3c)
+
 ## Directory structure
 
 > ATTENTION:
